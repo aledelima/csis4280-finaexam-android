@@ -47,26 +47,54 @@ class MainActivity : AppCompatActivity() {
                 products = RetrofitInstance.api.getProducts()
                 productAdapter = ProductAdapter(products)
                 binding.recyclerViewProducts.adapter = productAdapter
-                Toast.makeText(this@MainActivity, "Products loaded successfully!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@MainActivity,
+                    "Products loaded successfully!",
+                    Toast.LENGTH_SHORT
+                ).show()
             } catch (e: Exception) {
                 e.printStackTrace() // Log detailed stack trace
-                Toast.makeText(this@MainActivity, "Error fetching products: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@MainActivity,
+                    "Error fetching products: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
 
-
     private fun computeTotal() {
-        // Calculate total price with 12% tax
-        val total = products.sumOf { it.quantityToPurchase * it.price }
-        val totalWithTax = total + (total * 0.12)
-        binding.textViewTotalPrice.text = "Total Price: $${"%.2f".format(totalWithTax)} (Includes 12% Tax)"
+        // Filter products with quantityToPurchase > 0
+        val validProducts = products.filter { it.quantityToPurchase > 0 }
+
+        // Check if there are any valid products
+        if (validProducts.isEmpty()) {
+            Toast.makeText(this, "No products selected for calculation.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Calculate the total price
+        val total = validProducts.sumOf { it.quantityToPurchase * it.price }
+        val totalWithTax = total + (total * 0.12) // Add 12% tax
+
+        // Update the total price TextView
+        binding.textViewTotalPrice.text =
+            "Total Price: $${"%.2f".format(totalWithTax)} (Includes 12% Tax)"
     }
 
     private fun purchaseProducts() {
+        val clientName = binding.editTextClientName.text.toString().trim()
+
+        // Validate client name
+        if (clientName.isEmpty()) {
+            Toast.makeText(this, "Please enter a client name.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Filter products with a quantity to purchase > 0
         val purchasedProducts = products.filter { it.quantityToPurchase > 0 }
         if (purchasedProducts.isEmpty()) {
-            Toast.makeText(this, "No products selected for purchase", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "No products selected for purchase.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -79,19 +107,28 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+        // Calculate the total price
+        val totalPrice = items.sumOf { it.quantity * it.price }
+
         // Create the Purchase object
         val purchase = Purchase(
-            customerName = "Test User", // Replace with actual customer name
+            customerName = clientName,
             items = items,
-            totalPrice = items.sumOf { it.quantity * it.price }
+            totalPrice = totalPrice
         )
 
+        // Send purchase to the backend
         lifecycleScope.launch {
             try {
                 RetrofitInstance.api.createPurchase(purchase)
                 Toast.makeText(this@MainActivity, "Purchase successful!", Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
-                Toast.makeText(this@MainActivity, "Error processing purchase: ${e.message}", Toast.LENGTH_LONG).show()
+                e.printStackTrace() // Log error for debugging
+                Toast.makeText(
+                    this@MainActivity,
+                    "Error processing purchase: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }

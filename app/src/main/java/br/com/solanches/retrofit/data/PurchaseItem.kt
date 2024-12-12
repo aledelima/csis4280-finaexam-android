@@ -1,7 +1,9 @@
 package br.com.solanches.retrofit.data
 
+import com.google.gson.annotations.SerializedName
+
 data class PurchaseItem(
-    val productName: String,
-    val quantity: Int,
-    val price: Double
+    @SerializedName("product_name") val productName: String,
+    @SerializedName("quantity") val quantity: Int,
+    @SerializedName("price") val price: Double
 )

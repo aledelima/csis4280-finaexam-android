@@ -1,5 +1,7 @@
 package br.com.solanches.retrofit
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -9,7 +11,6 @@ import com.bumptech.glide.Glide
 
 class ProductAdapter(private val products: List<Product>) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
-    // ViewHolder for the product item
     class ProductViewHolder(val binding: ItemProductBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -37,10 +38,20 @@ class ProductAdapter(private val products: List<Product>) : RecyclerView.Adapter
             .error(R.drawable.ic_error) // Optional error image
             .into(binding.imageViewProduct)
 
-        // Save user input for quantity to purchase
-        binding.editTextQuantityToPurchase.setOnFocusChangeListener { _, _ ->
-            product.quantityToPurchase = binding.editTextQuantityToPurchase.text.toString().toIntOrNull() ?: 0
-        }
+        // Handle user input in EditText
+        binding.editTextQuantityToPurchase.setText(
+            if (product.quantityToPurchase > 0) product.quantityToPurchase.toString() else ""
+        )
+
+        binding.editTextQuantityToPurchase.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                product.quantityToPurchase = s.toString().toIntOrNull() ?: 0
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
     override fun getItemCount(): Int = products.size

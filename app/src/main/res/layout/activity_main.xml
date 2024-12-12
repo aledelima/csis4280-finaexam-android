@@ -7,12 +7,26 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- Client's Name Input -->
+    <EditText
+        android:id="@+id/editTextClientName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter Client Name"
+        android:inputType="textPersonName"
+        android:padding="8dp"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp" />
+
     <!-- RecyclerView for listing products -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewProducts"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextClientName"
         app:layout_constraintBottom_toTopOf="@id/linearLayoutButtons"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
